@@ -20,9 +20,7 @@ function App() {
 
   //Funciones
   const random = ()=> Math.floor(Math.random() * anecdotes.length)
-  const HandleNext = () => {
-    setSelected(random)
-  }
+  const HandleNext = () => setSelected(random)
   const HandleVote = () => {
     const newVotes = { ...votes }
     newVotes[selected] += 1
