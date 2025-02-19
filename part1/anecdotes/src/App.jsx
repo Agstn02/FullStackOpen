@@ -44,7 +44,7 @@ function App() {
       <div>{anecdotes[selected]}</div>
       <button onClick={HandleNext}>Nex Anecdote</button>
       <button onClick={HandleVote}>Vote</button>
-    <h1>Anecdote of the day</h1>
+    <h1>Most voted anecdote</h1>
       <div>{anecdotes[mostVoted()]}</div>
     </>
   )
