@@ -4,15 +4,12 @@ import Total from "./Total"
 
 
 const Course = ({ course }) => {
-  
-  
-const total = course.parts.reduce((acc, part) => acc + part.exercises, 0)
-  
+  const {name , parts} = course
 return (
     <div>
-      <Header title={course.name} />
-      <Content parts={course.parts} />
-      <Total total={total} />
+      <Header title={name} />
+      <Content parts={parts} />
+      <Total parts={parts} />
     </div>
   )
 }
