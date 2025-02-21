@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import PersonForm from './components/PersonForm'
+import Filter from './components/Filter'
+import NumberList from './components/NumberList'
+
 
 const App = () => {
     const [persons, setPersons] = useState([
@@ -21,8 +25,8 @@ const App = () => {
       alert(`${newName} ya está en la agenda`)
       return
     }
-
-    const newPersons = persons.concat({name:newName, number: newNumber})
+    const idGen = Math.random() * 10000; // Genero id random parra que no se queje mas adelante cuando renderice un objeto sin id
+    const newPersons = persons.concat({name:newName, number: newNumber, id: idGen })
     setNewName('')
     setNewNumber('')
     setPersons(newPersons)
@@ -34,23 +38,11 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name: <input value={newName} onChange={handleNewName} />
-        </div>
-        <div>
-          number: <input type="tel" pattern='[0-9]{3}-[0-9]{2}-[0-9]{6}' value={newNumber} onChange={handleNewNumber} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <div>
-        filter shown with <input type='text' onChange={handleFilter} value={filter} />
-      </div>
-
+        <Filter filter={filter} handleFilter={handleFilter}/>
+      <h3>Add new Person</h3>
+        <PersonForm name={newName} number={newNumber} handleNewName={handleNewName} handleNewNumber={handleNewNumber} handleSubmit={handleSubmit}/>
       <h2>Numbers</h2>
-      {persons.filter( w => w.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())).map( person => <p key={person.id}>{person.name} - {person.number}</p>)}
+        <NumberList persons={persons} filter={filter}/>
     </div>
   )
 }
