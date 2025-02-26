@@ -1,7 +1,7 @@
 import ListItem from "./ListItem";
 
-const NumberList = ({ persons, filter }) => {
-    const list = persons.filter( w => w.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()));
+const NumberList = ({ persons, find }) => {
+    const list = persons.filter( w => w.name.toLocaleLowerCase().includes(find.toLocaleLowerCase()));
         
     return(
         <div>
