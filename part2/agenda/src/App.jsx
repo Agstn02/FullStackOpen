@@ -2,15 +2,13 @@ import { useEffect, useState } from 'react'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import NumberList from './components/NumberList'
-import axios from 'axios'
-
+import personService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
-
   //Funciones
 
   const handleSubmit = (e) => {
@@ -21,11 +19,14 @@ const App = () => {
       alert(`${newName} ya está en la agenda`)
       return
     }
-    const idGen = Math.random() * 10000; // Genero id random parra que no se queje mas adelante cuando renderice un objeto sin una key
-    const newPersons = persons.concat({name:newName, number: newNumber, id: idGen })
-    setNewName('')
-    setNewNumber('')
-    setPersons(newPersons)
+    const newPerson = {name:newName, number: newNumber}
+    axios
+    .post(url, newPerson)
+    .then(res => {
+      setNewName('')
+      setNewNumber('')
+      setPersons(persons.concat(res.data))
+    })
   }
   const handleNewName = e => setNewName(e.target.value)
   const handleNewNumber = e => setNewNumber(e.target.value)
@@ -33,15 +34,13 @@ const App = () => {
 
   //EFFECT:
   useEffect(() => {
-    axios
-    .get("http://localhost:3001/persons")
-    .then(res => {
-      console.log(res);
-      setPersons(res.data)
+      personService
+      .getAll()
+      .then(data => setPersons(data))
       
-    })
-  }
-  ,[])
+    }
+    ,[]
+  )
 
 
   return (
