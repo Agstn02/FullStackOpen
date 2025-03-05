@@ -1,8 +1,11 @@
 
 
-const ListItem = ({person}) => {
+const ListItem = ({person , handle}) => {
     return(
-        <p> {person.name} - {person.number}</p>
+        <div>
+            <p> {person.name} - {person.number}</p>
+            <button onClick={() => handle(person)}>Delete</button>
+        </div>
     )
 }
 

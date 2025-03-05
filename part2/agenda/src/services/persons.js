@@ -3,15 +3,26 @@ import axios from "axios";
 const url = 'http://localhost:3001/persons'
 
 
-const getAll = () => {
+const GetAllPersons = () => {
     const req = axios.get(url)
     return req.then(res => res.data)
 }
 
-const add = (person) => {
+const AddPerson = (person) => {
     const req = axios.post(url, person)
     return req.then(res => res.data)
 }
 
+const DeletePerson = (id) => {
+    const reqUrl = url + `/${id}`
+    const req = axios.delete(reqUrl)
+    return  req.then(res => res.data)
+}
 
-export {getAll, add}
+const UpdatePerson = (person) => {
+    const reqUrl = url + `/${person.id}`
+    const req = axios.put(reqUrl, person)
+    return req.then(res => res.data)
+}
+
+export {GetAllPersons, AddPerson, DeletePerson, UpdatePerson}
