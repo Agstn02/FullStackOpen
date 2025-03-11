@@ -58,7 +58,7 @@ const App = () => {
   const handleDelete = (person) => {
     if(window.confirm(`Deseas eliminar a ${person.name}?`)){
       DeletePerson(person.id)
-      .then(data => window.alert(`${data.name} eliminado correctamente`))
+      .then(data => window.alert(`${person.name} eliminado correctamente`))
       .catch( err => console.log(err.message))
       setPersons(persons.filter(p => p.id !== person.id))
     }
