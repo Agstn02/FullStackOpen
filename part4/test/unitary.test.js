@@ -1,70 +1,85 @@
-const { test, describe } = require('node:test')
+const { test, after , beforeEach, describe} = require('node:test')
 const assert = require('node:assert')
-const listHelper = require('../utils/list_helper')
+const mongoose = require('mongoose')
+const app = require('../app')
+const supertest = require('supertest')
+const helper = require('./test_helper')
+const api = supertest(app)
 
-describe('dummy return', () => {
-    test('dummy returns one', () => {
-        const blogs = []
-      
-        const result = listHelper.dummy(blogs)
-        assert.strictEqual(result, 1)
-      })
+const Blog = require('../models/blog')
+
+//Setea la base de datos en un estado que controlamos y conocemos para poder testear.
+beforeEach(async () =>{
+  await Blog.deleteMany({})
+  const documents = helper.initialBlogs.map(el => new Blog(el))
+  await Blog.bulkSave(documents)
+  //COMO USAR PROMESAS PARA HACER LOS LLAMADOS A LA BD
+  // //Creo un array de objetos de mi Schema
+  // const blogObjects = helper.initialBlogs.map(blog => new Blog(blog))
+  // //A partir de ese array, utilizando map, creo un ARRAY DE PROMESAS
+  // const blogPromises = blogObjects.map(obj => obj.save())
+  // //Uso la funcion Promise.all() para devolver una sola promesa que se cumple al cumplirse el total de las promesas pasadas como (argumento/parametro [???]).
+  // Promise.all(blogPromises)
+  // //Estas lineas permiten que el beforeEach no termine de ejecutarse hasta que se resuelvan todas las promesas dentro del callback. Cosa que ocurriria si usaramos un bucle ForEach
+  //CON EL BUCLE FOR-OF LAS LLAMADAS SE HACEN EN ORDEN
+  // for (const el of helper.initialBlogs) {
+  //   let blog = new Blog(el)
+  //   await blog.save()
+  // }
+
 })
-describe('total likes', () => {
-    const listWithOneBlog = [
-      {
-        _id: '5a422aa71b54a676234d17f8',
-        title: 'Go To Statement Considered Harmful',
-        author: 'Edsger W. Dijkstra',
-        url: 'https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf',
-        likes: 5,
-        __v: 0
-      }
-    ]
-    const blogs = [
-        {
-          _id: "5a422a851b54a676234d17f7",
-          title: "React patterns",
-          author: "Michael Chan",
-          url: "https://reactpatterns.com/",
-          likes: 7,
-          __v: 0
-        },
-        {
-          _id: "5a422aa71b54a676234d17f8",
-          title: "Go To Statement Considered Harmful",
-          author: "Edsger W. Dijkstra",
-          url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-          likes: 5,
-          __v: 0
-        },
-        {
-          _id: "5a422b3a1b54a676234d17f9",
-          title: "Canonical string reduction",
-          author: "Edsger W. Dijkstra",
-          url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-          likes: 12,
-          __v: 0
-        }
-    ]
-    const MostPopular = {
-        _id: "5a422b3a1b54a676234d17f9",
-        title: "Canonical string reduction",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-        likes: 12,
-        __v: 0
-      }
-    test('when list has only one blog, equals the likes of that', () => {
-      const result = listHelper.totalLikes(listWithOneBlog)
-      assert.strictEqual(result, 5)
-    })
-    test('When the list has more than one blog', () => {
-        const res = listHelper.totalLikes(blogs)
-        assert.strictEqual(res, 24)
-    })
-    test('Most Popular', () => {
-      const result = listHelper.mostPopular(blogs)
-      assert.deepStrictEqual(result, MostPopular)
-    })
+
+describe('Cuando la bd tiene documentos', () => {
+
+  
+  
+  test('Cantidad de blogs devueltos', async () => {
+    const res = await api.get('/api/blogs')
+    
+    assert.strictEqual(res.body.length, helper.initialBlogs.length)
   })
+  
+  test('Propiedad id no es _id', async () => {
+    const res = await api.get('/api/blogs')
+    assert(res.body.every(obj => obj.hasOwnProperty('id'))) 
+  })
+  
+  test('Creacion de un nuevo blog', async () => {
+    const newBlog = {
+      title: 'Nuevo Blog',
+      author: 'Nuevo Autor',
+      url: 'www.nuevoblog.com',
+      likes: 12
+    }
+  
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+  
+    const response = await api.get('/api/blogs')
+    const content = response.body
+    assert.strictEqual(content.length, helper.initialBlogs.length + 1)
+  })
+
+})
+describe('Para rutas de documentos unicos', ()=> {
+  test('Una id invalida devuelve un 400' , async () => {
+    const id = 'idinexistenteenlabd'
+    await api
+    .get(`/api/blogs/${id}`)
+    .expect(400)
+  })
+})
+describe('Comportamiento al eliminar documentos', () => {
+  test('Un id invalido devuelve un status 400' , async () => {
+    const id = 'unidinvalido'
+    await api
+    .get(`/api/blogs/${id}`)
+    .expect(400)
+  })
+})
+// Cerrar la conexion con la BD
+after(async () => {
+  await mongoose.connection.close()
+})
